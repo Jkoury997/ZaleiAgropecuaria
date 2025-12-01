@@ -1,11 +1,15 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 
-function IconButton({ name, icon: Icon, url }) {
+function IconButton({ name, icon: Icon, url, onClick }) {
   const router = useRouter();
 
   const handleClick = () => {
-    router.push(url);
+    if (onClick) {
+      onClick();
+    } else if (url) {
+      router.push(url);
+    }
   };
 
   return (
@@ -27,6 +31,7 @@ export default function IconGrid({ items }) {
           name={item.name}
           icon={item.icon}
           url={item.url}
+          onClick={item.onClick}
         />
       ))}
     </div>

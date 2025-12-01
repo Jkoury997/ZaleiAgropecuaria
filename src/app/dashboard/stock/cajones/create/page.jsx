@@ -10,8 +10,10 @@ import { Button } from "@/components/ui/button";
 import shortUUID from "short-uuid";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
-import { useToast } from "@/hooks/use-toast"; // Importa el hook de toast
+import { useToast } from "@/hooks/use-toast";
 import UltimoImpreso from "@/components/component/stock/cajones/ultimo-impreso";
+import { useRouter, useSearchParams } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
 
 // Carga dinámica del componente QrPrinter
 const QrPrinter = dynamic(() => import("@/components/component/qr-pdf-generator"), { ssr: false });
@@ -24,10 +26,13 @@ export default function Page() {
     const [cantidad, setCantidad] = useState("");
     const [dataArticulo, setDataArticulo] = useState(null);
     const [qrData, setQrData] = useState(null);
-    const [isLoading, setIsLoading] = useState(false); // Estado para gestionar la carga
-    const { toast } = useToast(); // Usa el hook para mostrar el toast
+    const [isLoading, setIsLoading] = useState(false);
+    const { toast } = useToast();
     const [ultimoImpreso, setUltimoImpreso] = useState(null);
     const [mostrarUltimoQR, setMostrarUltimoQR] = useState(false);
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const from = searchParams.get('from') || 'home';
 
 
 
@@ -174,6 +179,14 @@ export default function Page() {
 
     return (
         <div className="container mx-auto px-2 py-8">
+            <Button 
+                variant="outline" 
+                onClick={() => router.push(`/dashboard?step=${from}`)}
+                className="mb-4"
+            >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Volver
+            </Button>
             {ultimoImpreso && activeStep !== 4  && (
     <div className="mt-4 text-center">
         <UltimoImpreso data={ultimoImpreso}></UltimoImpreso>
