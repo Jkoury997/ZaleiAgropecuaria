@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
+import { iaApiClient } from '@/app/api/ia/client';
 
 const URL_API_AUTH = process.env.NEXT_PUBLIC_URL_API_AUTH;
 
@@ -29,6 +30,29 @@ export async function POST(req) {
                 path: '/',
                 maxAge: 28800 // 8 horas en segundos
             });
+
+            // Inicializar sesión de IA automáticamente
+            console.log('[Login] Inicializando sesión de IA...');
+            try {
+                const iaResponse = await iaApiClient.login();
+                console.log('[Login] Respuesta de IA login:', iaResponse);
+                
+                if (iaResponse.success && iaResponse.data.access_token) {
+                    console.log('[Login] Token de IA obtenido exitosamente');
+                    // Guardar token de IA en cookie con la misma duración
+                    cookieStore.set('IAToken', iaResponse.data.access_token, {
+                        path: '/',
+                        maxAge: 28800 // 8 horas en segundos
+                    });
+                    console.log('[Login] Token de IA guardado en cookie');
+                } else {
+                    console.log('[Login] No se obtuvo token de IA en la respuesta');
+                }
+            } catch (iaError) {
+                console.error('[Login] Error al inicializar sesión de IA:', iaError);
+                // No falla el login principal si falla la IA
+            }
+
             return NextResponse.json(responseData);
         } else {
             // Manejo de errores específicos de la API

@@ -20,9 +20,20 @@ function CosechaPageContent() {
   const [isLoadingCampos, setIsLoadingCampos] = useState(false);
   const [filtrosActuales, setFiltrosActuales] = useState(null);
 
-  // Cargar campos al montar el componente
+  // Cargar campos y filtros guardados al montar el componente
   useEffect(() => {
     fetchCampos();
+    
+    // Cargar filtros guardados desde localStorage
+    const filtrosGuardados = localStorage.getItem('cosechaFiltros');
+    if (filtrosGuardados) {
+      try {
+        const filtros = JSON.parse(filtrosGuardados);
+        setFiltrosActuales(filtros);
+      } catch (error) {
+        console.error('Error al cargar filtros guardados:', error);
+      }
+    }
   }, []);
 
   const fetchCampos = async () => {
@@ -40,6 +51,10 @@ function CosechaPageContent() {
 
   const handleBuscar = async (filtros) => {
     setFiltrosActuales(filtros);
+    
+    // Guardar filtros en localStorage
+    localStorage.setItem('cosechaFiltros', JSON.stringify(filtros));
+    
     setIsLoading(true);
     try {
       // Convertir fecha de yyyy-mm-dd a dd/mm/yyyy (sin usar Date para evitar UTC)
@@ -62,6 +77,9 @@ function CosechaPageContent() {
   const handleLimpiarFiltros = () => {
     setFiltrosActuales(null);
     setCosechas([]);
+    
+    // Limpiar filtros guardados de localStorage
+    localStorage.removeItem('cosechaFiltros');
   };
 
   return (
@@ -81,6 +99,7 @@ function CosechaPageContent() {
         onLimpiar={handleLimpiarFiltros}
         campos={campos}
         isLoadingCampos={isLoadingCampos}
+        filtrosGuardados={filtrosActuales}
       />
 
 

@@ -24,6 +24,7 @@ function CargarCosechaContent() {
   const [cantidad, setCantidad] = useState("");
   const [imagen, setImagen] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [completeTask, setCompleteTask] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
@@ -33,6 +34,26 @@ function CargarCosechaContent() {
 
   useEffect(() => {
     fetchCampos();
+    
+    // Cargar filtros guardados desde localStorage
+    const filtrosGuardados = localStorage.getItem('cosechaFiltros');
+    if (filtrosGuardados) {
+      try {
+        const filtros = JSON.parse(filtrosGuardados);
+        // Pre-seleccionar campo y sementera si existen en los filtros guardados
+        if (filtros.campo) {
+          setSelectedCampo(filtros.campo);
+          // Cargar sementeras del campo guardado
+          fetchSementeras(filtros.campo).then(() => {
+            if (filtros.sementera) {
+              setSelectedSementera(filtros.sementera);
+            }
+          });
+        }
+      } catch (error) {
+        console.error('Error al cargar filtros guardados:', error);
+      }
+    }
   }, []);
 
   useEffect(() => {
@@ -80,12 +101,14 @@ function CargarCosechaContent() {
 
       if (response.ok && data.Estado) {
         setSementeras(data.Sementeras || []);
+        return data.Sementeras || [];
       } else {
         toast({
           title: "Error",
           description: data.error || "Error al obtener las sementeras",
           variant: "destructive",
         });
+        return [];
       }
     } catch (error) {
       toast({
@@ -93,17 +116,102 @@ function CargarCosechaContent() {
         description: "Error al cargar las sementeras",
         variant: "destructive",
       });
+      return [];
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleImageUpload = (e) => {
+  const handleImageUpload = async (e) => {
     const file = e.target.files[0];
+    console.log('[ImageUpload] Archivo seleccionado:', file);
+    
     if (file) {
+      // Comprimir la imagen antes de procesarla
+      console.log('[ImageUpload] Tamaño original:', (file.size / 1024 / 1024).toFixed(2), 'MB');
+      
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagen(reader.result);
+      reader.onloadend = async () => {
+        const img = new Image();
+        img.onload = async () => {
+          // Crear canvas para redimensionar
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          
+          // Calcular nuevas dimensiones (máximo 1200px en el lado más largo)
+          let width = img.width;
+          let height = img.height;
+          const maxSize = 1200;
+          
+          if (width > height && width > maxSize) {
+            height = (height * maxSize) / width;
+            width = maxSize;
+          } else if (height > maxSize) {
+            width = (width * maxSize) / height;
+            height = maxSize;
+          }
+          
+          canvas.width = width;
+          canvas.height = height;
+          
+          // Dibujar imagen redimensionada
+          ctx.drawImage(img, 0, 0, width, height);
+          
+          // Convertir a base64 con calidad reducida
+          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+          console.log('[ImageUpload] Imagen comprimida, longitud:', compressedBase64.length);
+          console.log('[ImageUpload] Tamaño aproximado:', (compressedBase64.length / 1024 / 1024).toFixed(2), 'MB');
+          
+          setImagen(compressedBase64);
+          
+          // Analizar imagen automáticamente
+          console.log('[ImageUpload] Iniciando análisis de imagen...');
+          setIsAnalyzing(true);
+          try {
+            console.log('[ImageUpload] Enviando request a /api/ia/analyze/img');
+            const response = await fetch("/api/ia/analyze/img", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ image: compressedBase64 }),
+            });
+
+            console.log('[ImageUpload] Response status:', response.status);
+            const data = await response.json();
+            console.log('[ImageUpload] Response data:', data);
+
+            if (response.ok && data.success && data.data) {
+              // Cargar automáticamente la cantidad detectada
+              const detectedNumber = data.data.toString();
+              console.log('[ImageUpload] Número detectado:', detectedNumber);
+              setCantidad(detectedNumber);
+              toast({
+                title: "Análisis completado",
+                description: `Cantidad detectada: ${detectedNumber} kg`,
+                variant: "success",
+              });
+            } else {
+              console.log('[ImageUpload] No se detectó número o respuesta no exitosa');
+              toast({
+                title: "Advertencia",
+                description: "No se pudo detectar un número en la imagen. Ingrese la cantidad manualmente.",
+                variant: "default",
+              });
+            }
+          } catch (error) {
+            console.error('[ImageUpload] Error al analizar imagen:', error);
+            toast({
+              title: "Error",
+              description: "Error al analizar la imagen. Ingrese la cantidad manualmente.",
+              variant: "destructive",
+            });
+          } finally {
+            console.log('[ImageUpload] Análisis finalizado');
+            setIsAnalyzing(false);
+          }
+        };
+        img.src = reader.result;
       };
       reader.readAsDataURL(file);
     }
@@ -235,6 +343,7 @@ function CargarCosechaContent() {
                   imagen={imagen}
                   handleImageUpload={handleImageUpload}
                   isLoading={isLoading}
+                  isAnalyzing={isAnalyzing}
                   setActiveStep={setActiveStep}
                   handleSubmit={handleSubmit}
                 />

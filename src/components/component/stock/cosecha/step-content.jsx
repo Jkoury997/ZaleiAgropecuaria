@@ -23,6 +23,7 @@ export default function StepContent({
   imagen,
   handleImageUpload,
   isLoading,
+  isAnalyzing,
   setActiveStep,
   handleSubmit,
 }) {
@@ -163,21 +164,8 @@ export default function StepContent({
     case 2:
       return (
         <div className="space-y-4">
-          <div>
-            <Label htmlFor="cantidad">Cantidad (kg)</Label>
-            <Input
-              id="cantidad"
-              type="number"
-              placeholder="Ingrese la cantidad en kg"
-              value={cantidad}
-              onChange={(e) => setCantidad(e.target.value)}
-              min="0"
-              step="0.01"
-            />
-          </div>
-
-          <div>
-            <Label>Foto del contador (opcional)</Label>
+            <div>
+            <Label>Foto*</Label>
             <div className="space-y-2">
               <input
                 type="file"
@@ -186,6 +174,7 @@ export default function StepContent({
                 onChange={handleImageUpload}
                 className="hidden"
                 id="photo-upload"
+                required
               />
               <label htmlFor="photo-upload">
                 <Button
@@ -205,11 +194,31 @@ export default function StepContent({
                   <img
                     src={imagen}
                     alt="Preview"
-                    className="w-full h-48 object-cover rounded-md"
+                    className="w-full h-64 object-cover rounded-md"
                   />
                 </div>
               )}
             </div>
+          </div>
+
+          <div>
+            <Label htmlFor="cantidad">Cantidad (kg)</Label>
+            <Input
+              id="cantidad"
+              type="number"
+              placeholder={isAnalyzing ? "Analizando imagen..." : "Ingrese la cantidad en kg"}
+              value={cantidad}
+              onChange={(e) => setCantidad(e.target.value)}
+              min="0"
+              step="0.01"
+              disabled={isAnalyzing}
+            />
+            {isAnalyzing && (
+              <p className="text-sm text-blue-600 mt-1 flex items-center gap-2">
+                <Spinner size="sm" />
+                Detectando cantidad en la imagen...
+              </p>
+            )}
           </div>
 
           <div className="flex gap-2">
