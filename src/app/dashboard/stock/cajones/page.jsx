@@ -1,11 +1,13 @@
 "use client"
+import { Suspense } from 'react';
 import { Button } from "@/components/ui/button";
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { ArrowLeft } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
 
 
-export default function Page() {
+function CajonesPageContent() {
     const pathname = usePathname();
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -25,5 +27,13 @@ export default function Page() {
         <Button className="mx-auto text-center">Cargar</Button>
       </Link>
     </>
+  );
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div className="flex justify-center items-center min-h-screen"><Spinner size="lg" /></div>}>
+      <CajonesPageContent />
+    </Suspense>
   );
 }

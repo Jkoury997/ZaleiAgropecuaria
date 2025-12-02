@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import QrScannerComponent from "@/components/component/qr-scanner";
 import { Card, CardContent } from "@/components/ui/card";
 import { Alert } from "@/components/ui/alert";
@@ -13,7 +13,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 
 
-export default function Page() {
+function MovePalletContent() {
   const [isFirstScanComplete, setIsFirstScanComplete] = useState(false);
   const [activeStep, setActiveStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false); // Estado para manejar el indicador de carga
@@ -364,5 +364,13 @@ const fetchMovePaquete = async (IdPaquete) => {
         </CardContent>
       </Card>
     </>
+  );
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div className="flex justify-center items-center min-h-screen"><Spinner size="lg" /></div>}>
+      <MovePalletContent />
+    </Suspense>
   );
 }

@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import {
   Card,
   CardContent,
@@ -15,7 +15,7 @@ import { ArrowLeft } from "lucide-react";
 import SuccessUI from "@/components/ui/success-ui";
 import StepContent from "@/components/component/stock/cosecha/step-content";
 
-export default function Page() {
+function CargarCosechaContent() {
   const [activeStep, setActiveStep] = useState(1);
   const [campos, setCampos] = useState([]);
   const [sementeras, setSementeras] = useState([]);
@@ -244,5 +244,13 @@ export default function Page() {
         )}
       </Card>
     </>
+  );
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div className="flex justify-center items-center min-h-screen"><Spinner size="lg" /></div>}>
+      <CargarCosechaContent />
+    </Suspense>
   );
 }

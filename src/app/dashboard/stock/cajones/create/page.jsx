@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import ScanBarcode from "@/components/component/scan-barcode";
 import { EnterGalpon } from "@/components/component/enter-galpon";
 import { EnterQuantity } from "@/components/component/enter-quantity";
@@ -18,7 +18,7 @@ import { ArrowLeft } from "lucide-react";
 // Carga dinámica del componente QrPrinter
 const QrPrinter = dynamic(() => import("@/components/component/qr-pdf-generator"), { ssr: false });
 
-export default function Page() {
+function CreateCajonContent() {
     const [isFirstScanComplete, setIsFirstScanComplete] = useState(false);
     const [isScanning, setIsScanning] = useState(true);
     const [activeStep, setActiveStep] = useState(1);
@@ -275,4 +275,12 @@ export default function Page() {
             </Card>
         </div>
     );
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div className="flex justify-center items-center min-h-screen"><Spinner size="lg" /></div>}>
+      <CreateCajonContent />
+    </Suspense>
+  );
 }

@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import {
   Card,
   CardContent,
@@ -19,7 +19,7 @@ import PrintOrden from "@/components/component/stock/despacho/print-order";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 
-export default function Page() {
+function DespachosPageContent() {
   const [activeStep, setActiveStep] = useState(1);
   const [productos, setProductos] = useState([]);
   const [despacho, setDespacho] = useState({});
@@ -276,5 +276,13 @@ export default function Page() {
         )}
       </Card>
     </>
+  );
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div className="flex justify-center items-center min-h-screen"><Spinner size="lg" /></div>}>
+      <DespachosPageContent />
+    </Suspense>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,7 +8,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { ArrowLeft, Plus, Filter } from "lucide-react";
 import FiltrosCosecha from "@/components/component/stock/cosecha/filtros-cosecha";
 
-export default function Page() {
+function CosechaPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const from = searchParams.get("from") || "agro";
@@ -157,5 +157,13 @@ export default function Page() {
         <Plus className="h-6 w-6" />
       </Button>
     </>
+  );
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div className="flex justify-center items-center min-h-screen"><Spinner size="lg" /></div>}>
+      <CosechaPageContent />
+    </Suspense>
   );
 }

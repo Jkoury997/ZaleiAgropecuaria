@@ -11,7 +11,7 @@ import {
   ArrowLeft,
 } from "lucide-react";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,7 +25,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useSearchParams } from "next/navigation";
 
-export default function Page() {
+function DashboardContent() {
   const [showDialog, setShowDialog] = useState(false);
   const searchParams = useSearchParams();
   const stepParam = searchParams.get('step');
@@ -133,5 +133,13 @@ export default function Page() {
         <IconGrid items={getItems()} />
       </div>
     </>
+  );
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div>Cargando...</div>}>
+      <DashboardContent />
+    </Suspense>
   );
 }

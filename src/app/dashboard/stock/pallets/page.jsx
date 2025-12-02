@@ -1,12 +1,13 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { ListPallets } from "@/components/component/list-pallets";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 
-export default function Page() {
+function PalletsPageContent() {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -55,5 +56,13 @@ export default function Page() {
       </Button>
       <ListPallets pallets={palletsData} />
     </>
+  );
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div className="flex justify-center items-center min-h-screen"><Spinner size="lg" /></div>}>
+      <PalletsPageContent />
+    </Suspense>
   );
 }
