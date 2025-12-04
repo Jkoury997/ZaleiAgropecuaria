@@ -8,16 +8,11 @@ import { iaApiClient } from '../../client';
  */
 export async function POST(request) {
   try {
-    console.log('[AnalyzeImg] Recibiendo request de análisis de imagen');
     const body = await request.json();
-    console.log('[AnalyzeImg] Body completo:', body);
     const { image } = body;
-
-    console.log('[AnalyzeImg] Imagen recibida, longitud:', image?.length || 0);
 
     // Validar que venga la imagen
     if (!image) {
-      console.log('[AnalyzeImg] Error: Imagen no proporcionada');
       return NextResponse.json(
         { 
           success: false, 
@@ -31,27 +26,20 @@ export async function POST(request) {
     const cookieStore = cookies();
     let iaToken = cookieStore.get('IAToken')?.value;
 
-    console.log('[AnalyzeImg] Token de IA obtenido de cookie:', iaToken ? 'Presente' : 'Ausente');
-
     // Si no hay token, intentar hacer login automáticamente
     if (!iaToken) {
-      console.log('[AnalyzeImg] No hay token, intentando login automático de IA...');
       try {
         const loginResponse = await iaApiClient.login();
-        console.log('[AnalyzeImg] Respuesta de login automático:', loginResponse);
         
         if (loginResponse.success && loginResponse.data?.access_token) {
           iaToken = loginResponse.data.access_token;
-          console.log('[AnalyzeImg] Token obtenido del login automático:', iaToken.substring(0, 20) + '...');
           
           // Guardar el token en cookies para futuras peticiones
           cookieStore.set('IAToken', iaToken, {
             path: '/',
             maxAge: 28800 // 8 horas
           });
-          console.log('[AnalyzeImg] Token guardado en cookie');
         } else {
-          console.log('[AnalyzeImg] Login automático no exitoso. Response:', JSON.stringify(loginResponse));
           return NextResponse.json(
             { 
               success: false, 
@@ -73,16 +61,12 @@ export async function POST(request) {
     }
 
     // Configurar token en el cliente
-    console.log('[AnalyzeImg] Configurando token en iaApiClient');
     iaApiClient.setToken(iaToken);
 
     // Llamar al servicio de análisis de imagen
-    console.log('[AnalyzeImg] Llamando a iaApiClient.analyzeImage...');
     const response = await iaApiClient.analyzeImage(image);
-    console.log('[AnalyzeImg] Respuesta de analyzeImage:', response);
 
     if (!response.success) {
-      console.log('[AnalyzeImg] Análisis no exitoso:', response.error);
       return NextResponse.json(
         { 
           success: false, 
@@ -94,10 +78,8 @@ export async function POST(request) {
 
     // Extraer el valor de peso_kg o cantidad_kg del result
     const cantidad = response.data?.result?.peso_kg || response.data?.result?.cantidad_kg;
-    console.log('[AnalyzeImg] Cantidad extraída:', cantidad);
 
     // Devolver la respuesta
-    console.log('[AnalyzeImg] Análisis exitoso, data:', response.data);
     return NextResponse.json({
       success: true,
       data: cantidad,
