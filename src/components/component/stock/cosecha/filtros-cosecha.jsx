@@ -17,14 +17,35 @@ export default function FiltrosCosecha({
   onLimpiar,
   campos = [],
   isLoadingCampos = false,
+  filtrosGuardados,
 }) {
   const [sementeras, setSementeras] = useState([]);
-  const [selectedCampo, setSelectedCampo] = useState("");
-  const [selectedSementera, setSelectedSementera] = useState("");
-  const [selectedFecha, setSelectedFecha] = useState(new Date());
+  const [selectedCampo, setSelectedCampo] = useState(filtrosGuardados?.campo || "");
+  const [selectedSementera, setSelectedSementera] = useState(filtrosGuardados?.sementera || "");
+  const [selectedFecha, setSelectedFecha] = useState(() => {
+    if (filtrosGuardados?.fecha) {
+      // Parsear fecha en formato yyyy-mm-dd sin problemas de zona horaria
+      const [year, month, day] = filtrosGuardados.fecha.split('-').map(Number);
+      return new Date(year, month - 1, day);
+    }
+    return new Date();
+  });
   const [openCampo, setOpenCampo] = useState(false);
   const [openSementera, setOpenSementera] = useState(false);
   const [isLoadingSementeras, setIsLoadingSementeras] = useState(false);
+
+  // Actualizar estados cuando cambien los filtros guardados
+  useEffect(() => {
+    if (filtrosGuardados) {
+      setSelectedCampo(filtrosGuardados.campo || "");
+      setSelectedSementera(filtrosGuardados.sementera || "");
+      if (filtrosGuardados.fecha) {
+        // Parsear fecha en formato yyyy-mm-dd sin problemas de zona horaria
+        const [year, month, day] = filtrosGuardados.fecha.split('-').map(Number);
+        setSelectedFecha(new Date(year, month - 1, day));
+      }
+    }
+  }, [filtrosGuardados]);
 
   // Cargar sementeras cuando se selecciona un campo
   useEffect(() => {
@@ -53,7 +74,7 @@ export default function FiltrosCosecha({
 
   const handleBuscar = () => {
     if (selectedSementera && selectedFecha) {
-      // Formatear fecha a yyyy-mm-dd
+      // Formatear fecha a yyyy-mm-dd usando getUTCFullYear para evitar problemas de zona horaria
       const year = selectedFecha.getFullYear();
       const month = String(selectedFecha.getMonth() + 1).padStart(2, '0');
       const day = String(selectedFecha.getDate()).padStart(2, '0');
