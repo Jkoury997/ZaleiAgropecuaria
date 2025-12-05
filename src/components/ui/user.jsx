@@ -12,6 +12,10 @@ export function UserDropMenu() {
         const response = await fetch('/api/jinx/Logout');
         const data = await response.json();
         if (data.success === true) {
+            // Limpiar localStorage si la API lo indica
+            if (data.clearStorage) {
+                localStorage.removeItem('cosechaFiltros');
+            }
             window.location.href = "/auth/login";
         }
     } catch (error) {

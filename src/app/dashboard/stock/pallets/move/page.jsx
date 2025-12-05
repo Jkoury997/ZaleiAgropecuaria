@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import QrScannerComponent from "@/components/component/qr-scanner";
 import { Card, CardContent } from "@/components/ui/card";
 import { Alert } from "@/components/ui/alert";
@@ -7,11 +7,13 @@ import DepositoInfo from "@/components/ui/deposit-info";
 import { Button } from "@/components/ui/button";
 import ListPackets from "@/components/component/list-packed";
 import StatusBadge from "@/components/ui/badgeAlert";
-import { useToast } from "@/hooks/use-toast"; // Importa el hook de toast
+import { useToast } from "@/hooks/use-toast";
 import { Spinner } from "@/components/ui/spinner";
+import { useRouter, useSearchParams } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
 
 
-export default function Page() {
+function MovePalletContent() {
   const [isFirstScanComplete, setIsFirstScanComplete] = useState(false);
   const [activeStep, setActiveStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false); // Estado para manejar el indicador de carga
@@ -22,7 +24,10 @@ export default function Page() {
   const [depositFinal, setDepositFinal] = useState(null);
   const [scannedPackages, setScannedPackages] = useState([]);
   const [scannedUUIDs, setScannedUUIDs] = useState([]);
-  const { toast } = useToast(); // Usa el hook para mostrar el toast
+  const { toast } = useToast();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const from = searchParams.get('from') || 'home';
 
   useEffect(() => {
     const handleBeforeUnload = (event) => {
@@ -277,6 +282,14 @@ const fetchMovePaquete = async (IdPaquete) => {
 
   return (
     <>
+      <Button 
+        variant="outline" 
+        onClick={() => router.push(`/dashboard?step=${from}`)}
+        className="mb-4"
+      >
+        <ArrowLeft className="h-4 w-4 mr-2" />
+        Volver
+      </Button>
       {isLoading && (
         <div className="mb-4">
           <Alert type="info" title="Cargando" message="Por favor, espera..." />
@@ -351,5 +364,13 @@ const fetchMovePaquete = async (IdPaquete) => {
         </CardContent>
       </Card>
     </>
+  );
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div className="flex justify-center items-center min-h-screen"><Spinner size="lg" /></div>}>
+      <MovePalletContent />
+    </Suspense>
   );
 }

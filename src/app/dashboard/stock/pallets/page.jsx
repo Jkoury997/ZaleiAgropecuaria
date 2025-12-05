@@ -1,12 +1,17 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { ListPallets } from "@/components/component/list-pallets";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
 
-export default function Page() {
+function PalletsPageContent() {
   const pathname = usePathname();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const from = searchParams.get('from') || 'home';
   const [palletsData, setPalletsData] = useState([]);
 
   const fetchPalletList = async () => {
@@ -40,6 +45,24 @@ export default function Page() {
   }, []);
 
   return (
+    <>
+      <Button 
+        variant="outline" 
+        onClick={() => router.push(`/dashboard?step=${from}`)}
+        className="mb-4"
+      >
+        <ArrowLeft className="h-4 w-4 mr-2" />
+        Volver
+      </Button>
       <ListPallets pallets={palletsData} />
+    </>
+  );
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div className="flex justify-center items-center min-h-screen"><Spinner size="lg" /></div>}>
+      <PalletsPageContent />
+    </Suspense>
   );
 }

@@ -98,6 +98,11 @@ export default function SideBarLinks() {
     try {
       const response = await fetch("/api/jinx/Logout");
       if (response.ok) {
+        const data = await response.json();
+        // Limpiar localStorage si la API lo indica
+        if (data.clearStorage) {
+          localStorage.removeItem('cosechaFiltros');
+        }
         window.location.href = "/auth/login";
       }
     } catch (error) {
