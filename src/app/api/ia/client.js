@@ -1,5 +1,5 @@
 // Configuración y utilidades para la API de IA
-const IA_API_URL = process.env.NEXT_PUBLIC_IA_API_URL || 'https://ia-mws.ingeniar.com.ar/';
+const IA_API_URL = process.env.NEXT_PUBLIC_IA_API_URL || 'https://msia.grupomk.ar/';
 
 // Credenciales fijas para la API de IA
 const IA_API_CREDENTIALS = {
