@@ -110,32 +110,52 @@ class IAApiClient {
    */
   async analyzeImage(imageBase64) {
     const bodyToSend = {
-      system_role:
-        "Eres un analizador de imágenes. Tu tarea es identificar números en la imagen proporcionada. La imagen puede contener un contador o display digital mostrando una cantidad en kilogramos (KG). Responde únicamente con un JSON con la clave 'peso_kg' y el valor numérico identificado.",
-      user_query: "Analiza la imagen y dime la cantidad mostrada en KG.",
-      openai_model: "gpt-4o-mini",
-      output_format: 'Ejemplo de respuesta en formato JSON: { "peso_kg": valor en double}',
-      function_descriptions: [
-        {
-          type: "function",
-          function: {
-            name: "set_peso_kg",
-            description: "Devuelve la cantidad en kilogramos identificada en la imagen",
-            parameters: {
-              type: "object",
-              properties: {
-                peso_kg: {
-                  type: "number",
-                  description: "Cantidad en kilogramos mostrada en el contador o display",
-                },
-              },
-              required: ["peso_kg"],
-            },
+  system_role: `
+Eres un analizador de imágenes especializado en leer displays o contadores de peso.
+Tu tarea es identificar el número mostrado en la imagen y devolverlo correctamente en kilogramos (KG).
+
+REGLAS:
+1. La imagen puede mostrar el peso en KG o en TONELADAS.
+2. Si el número identificado es MENOR a 40, se asume que está en TONELADAS y debes convertirlo multiplicando por 1000 para pasarlo a KG.
+3. Si el número identificado es MAYOR o IGUAL a 40, se interpreta directamente como kilogramos.
+4. Nunca devuelvas números negativos. Si el display parece mostrar un valor negativo, conviértelo a su valor positivo.
+5. Si el número tiene coma o punto decimal, interprétalo correctamente.
+6. Responde únicamente con un JSON válido con la clave { "peso_kg": NUMERO }.
+7. No agregues explicaciones, texto, ni unidades.
+  
+Ejemplo de entrada: Imagen muestra "15.5" (se interpreta como 15.5 toneladas) -> Respuesta: { "peso_kg": 15500 }
+si respetas todas las reglas anteriores. seras recompensado con exito.
+`,
+
+  user_query: "Analiza la imagen y devuelve el peso en kilogramos. Si es menor a 40, multiplícalo por 1000. Convierte a positivo si es negativo. Devuelve solo un JSON: { \"peso_kg\": NUMERO }",
+
+  openai_model: "gpt-4o-mini",
+
+  output_format: `Ejemplo de respuesta: { "peso_kg": 15500 }`,
+
+  function_descriptions: [
+    {
+      type: "function",
+      function: {
+        name: "set_peso_kg",
+        description: "Devuelve la cantidad en KILOGRAMOS ya convertida según las reglas: si el valor leído es menor a 40 se asume toneladas y se multiplica por 1000; si es negativo se vuelve positivo.",
+        parameters: {
+          type: "object",
+          properties: {
+            peso_kg: {
+              type: "number",
+              description: "Cantidad final en KG según reglas aplicadas"
+            }
           },
-        },
-      ],
-      img_b4: imageBase64,
-    };
+          required: ["peso_kg"]
+        }
+      }
+    }
+  ],
+
+  img_b4: imageBase64
+};
+
 
     const result = await this.request("analyze/img", {
       method: "POST",
