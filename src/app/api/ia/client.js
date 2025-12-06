@@ -1,10 +1,10 @@
 // Configuración y utilidades para la API de IA
-const IA_API_URL = process.env.NEXT_PUBLIC_IA_API_URL || 'https://msia.grupomk.ar/';
+const IA_API_URL = process.env.NEXT_PUBLIC_IA_API_URL || "https://msia.grupomk.ar/";
 
-// Credenciales fijas para la API de IA
+// Credenciales desde variables de entorno
 const IA_API_CREDENTIALS = {
-  name: '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08',
-  password: '7895d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08'
+  name: process.env.IA_API_NAME,
+  password: process.env.IA_API_PASSWORD,
 };
 
 /**
@@ -35,16 +35,15 @@ class IAApiClient {
    */
   async request(endpoint, options = {}) {
     const url = `${this.baseURL}${endpoint}`;
-    
-   
+
     const headers = {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
       ...options.headers,
     };
 
     // Agregar token si existe
     if (this.token) {
-      headers['Authorization'] = `Bearer ${this.token}`;
+      headers["Authorization"] = `Bearer ${this.token}`;
     }
 
     const config = {
@@ -54,7 +53,7 @@ class IAApiClient {
 
     try {
       const response = await fetch(url, config);
-      
+
       const data = await response.json();
 
       if (!response.ok) {
@@ -80,8 +79,8 @@ class IAApiClient {
    * Usa las credenciales fijas de la API
    */
   async login() {
-    const response = await this.request('v1/auth/login', {
-      method: 'POST',
+    const response = await this.request("v1/auth/login", {
+      method: "POST",
       body: JSON.stringify(IA_API_CREDENTIALS),
     });
 
@@ -100,7 +99,7 @@ class IAApiClient {
     if (!this.token) {
       const loginResponse = await this.login();
       if (!loginResponse.success) {
-        throw new Error('Error al autenticar con la API de IA');
+        throw new Error("Error al autenticar con la API de IA");
       }
     }
     return this.token;
@@ -110,12 +109,12 @@ class IAApiClient {
    * Analizar imagen
    */
   async analyzeImage(imageBase64) {
- 
     const bodyToSend = {
-      system_role: "Eres un analizador de imágenes. Tu tarea es identificar números en la imagen proporcionada. La imagen puede contener un contador o display digital mostrando una cantidad en kilogramos (KG). Responde únicamente con un JSON con la clave 'peso_kg' y el valor numérico identificado.",
+      system_role:
+        "Eres un analizador de imágenes. Tu tarea es identificar números en la imagen proporcionada. La imagen puede contener un contador o display digital mostrando una cantidad en kilogramos (KG). Responde únicamente con un JSON con la clave 'peso_kg' y el valor numérico identificado.",
       user_query: "Analiza la imagen y dime la cantidad mostrada en KG.",
       openai_model: "gpt-4o-mini",
-      output_format: "Ejemplo de respuesta en formato JSON: { \"peso_kg\": valor en double}",
+      output_format: 'Ejemplo de respuesta en formato JSON: { "peso_kg": valor en double}',
       function_descriptions: [
         {
           type: "function",
@@ -127,23 +126,23 @@ class IAApiClient {
               properties: {
                 peso_kg: {
                   type: "number",
-                  description: "Cantidad en kilogramos mostrada en el contador o display"
-                }
+                  description: "Cantidad en kilogramos mostrada en el contador o display",
+                },
               },
-              required: ["peso_kg"]
-            }
-          }
-        }
+              required: ["peso_kg"],
+            },
+          },
+        },
       ],
-      img_b4: imageBase64
+      img_b4: imageBase64,
     };
 
-    const result = await this.request('analyze/img', {
-      method: 'POST',
+    const result = await this.request("analyze/img", {
+      method: "POST",
       body: JSON.stringify(bodyToSend),
     });
-    
-    console.log('[IAClient] analyzeImage - Resultado:', result);
+
+    console.log("[IAClient] analyzeImage - Resultado:", result);
     return result;
   }
 }
