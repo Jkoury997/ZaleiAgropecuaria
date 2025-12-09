@@ -8,7 +8,7 @@ module.exports = {
         exec_mode: 'cluster',     // Modo de ejecución 'cluster' para balancear carga
         env: {
             NODE_ENV: 'production', // Variables de entorno para producción
-            PORT: 5000
+            PORT: 5001
           },
       }
     ]
