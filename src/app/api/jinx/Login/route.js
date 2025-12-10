@@ -28,7 +28,7 @@ export async function POST(req) {
             // Guardar tokens en cookies con una duración de 8 horas
             cookieStore.set('AccessKey', responseData.AccessKey, {
                 path: '/',
-                maxAge: 28800 // 8 horas en segundos
+                maxAge: 43200 // 8 horas en segundos
             });
 
             // Inicializar sesión de IA automáticamente
