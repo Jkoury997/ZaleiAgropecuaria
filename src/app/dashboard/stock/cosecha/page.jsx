@@ -87,7 +87,7 @@ function CosechaPageContent() {
       <Button
         variant="outline"
         onClick={() => router.push(`/dashboard?step=${from}`)}
-        className="mb-4"
+        className="mb-2"
       >
         <ArrowLeft className="h-4 w-4 mr-2" />
         Volver
