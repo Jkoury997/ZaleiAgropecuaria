@@ -15,6 +15,7 @@ export function UserDropMenu() {
             // Limpiar localStorage si la API lo indica
             if (data.clearStorage) {
                 localStorage.removeItem('cosechaFiltros');
+                localStorage.removeItem('cosechaUltimaCarga');
             }
             window.location.href = "/auth/login";
         }

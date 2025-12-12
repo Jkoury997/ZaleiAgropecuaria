@@ -35,23 +35,23 @@ function CargarCosechaContent() {
   useEffect(() => {
     fetchCampos();
     
-    // Cargar filtros guardados desde localStorage
-    const filtrosGuardados = localStorage.getItem('cosechaFiltros');
-    if (filtrosGuardados) {
+    // Cargar última carga desde localStorage (independiente de los filtros)
+    const ultimaCarga = localStorage.getItem('cosechaUltimaCarga');
+    if (ultimaCarga) {
       try {
-        const filtros = JSON.parse(filtrosGuardados);
-        // Pre-seleccionar campo y sementera si existen en los filtros guardados
-        if (filtros.campo) {
-          setSelectedCampo(filtros.campo);
+        const datos = JSON.parse(ultimaCarga);
+        // Pre-seleccionar campo y sementera de la última carga
+        if (datos.campo) {
+          setSelectedCampo(datos.campo);
           // Cargar sementeras del campo guardado
-          fetchSementeras(filtros.campo).then(() => {
-            if (filtros.sementera) {
-              setSelectedSementera(filtros.sementera);
+          fetchSementeras(datos.campo).then(() => {
+            if (datos.sementera) {
+              setSelectedSementera(datos.sementera);
             }
           });
         }
       } catch (error) {
-        console.error('Error al cargar filtros guardados:', error);
+        console.error('Error al cargar última carga:', error);
       }
     }
   }, []);
@@ -256,6 +256,12 @@ function CargarCosechaContent() {
       const data = await response.json();
 
       if (response.ok && data.Estado) {
+        // Guardar la última carga para pre-seleccionar en próximas cargas
+        localStorage.setItem('cosechaUltimaCarga', JSON.stringify({
+          campo: selectedCampo,
+          sementera: selectedSementera,
+        }));
+        
         setCompleteTask(true);
         toast({
           title: "Éxito",
