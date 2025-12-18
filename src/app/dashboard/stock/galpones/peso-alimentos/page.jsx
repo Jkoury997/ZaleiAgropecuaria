@@ -17,8 +17,8 @@ function PesoAlimentosPageContent() {
   const from = searchParams.get("from") || "avicola";
   const { toast } = useToast();
 
-  const [activeStep, setActiveStep] = useState(2);
-  const [galpon, setGalpon] = useState("GPOS1");
+  const [activeStep, setActiveStep] = useState(1);
+  const [galpon, setGalpon] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [completeTask, setCompleteTask] = useState(false);
   const Steps = [1, 2];
@@ -50,7 +50,9 @@ function PesoAlimentosPageContent() {
   };
 
   const handleSubmit = async (formData) => {
+    if(isLoading) return;
     setIsLoading(true);
+
     try {
       const payload = {
         Fecha: formData.fecha,
@@ -103,8 +105,8 @@ function PesoAlimentosPageContent() {
   };
 
   const handleReset = () => {
-    setActiveStep(2);
-    setGalpon("GPOS1");
+    setActiveStep(1);
+    setGalpon("");
     setCompleteTask(false);
     setIsLoading(false);
   };

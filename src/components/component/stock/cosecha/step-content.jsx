@@ -231,7 +231,7 @@ export default function StepContent({
             </Button>
             <Button
               onClick={() => setActiveStep(3)}
-              disabled={!cantidad}
+              disabled={!cantidad || !imagen}
               className="flex-1"
             >
               Continuar

@@ -105,6 +105,15 @@ export default function PesoAlimentosForm({ galpon, onSubmit, onBack }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     
+    if (!imagen) {
+      toast({
+        title: "Error",
+        description: "Debe tomar una foto",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     if (!kilos || parseFloat(kilos) <= 0) {
       toast({
         title: "Error",
@@ -146,7 +155,7 @@ export default function PesoAlimentosForm({ galpon, onSubmit, onBack }) {
       </div>
 
       <div>
-        <Label>Foto del contador (opcional)</Label>
+        <Label>Foto del contador*</Label>
         <div className="space-y-2">
           <input
             type="file"
@@ -225,7 +234,7 @@ export default function PesoAlimentosForm({ galpon, onSubmit, onBack }) {
         <Button
           type="submit"
           className="flex-1"
-          disabled={!kilos || isAnalyzing}
+          disabled={!kilos || !imagen || isAnalyzing}
         >
           Registrar
         </Button>
