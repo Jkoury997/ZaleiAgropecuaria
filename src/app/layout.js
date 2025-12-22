@@ -1,5 +1,6 @@
 import { Inter } from "next/font/google";
 import "./globals.css";
+import PwaUpdater from "@/components/update/PwaUpdater";
 
 const APP_NAME = "Zalei App";
 const APP_DEFAULT_TITLE = "Zalei Agropecuaria S.A. App";
@@ -49,10 +50,10 @@ export default function RootLayout({ children }) {
   <meta name="theme-color" content="#FFFFFF" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <meta name="apple-mobile-web-app-title" content="Zalei App" />
+  <meta name="apple-mobile-web-app-title" content="Zalei App v2" />
 </head>
       {/* El objeto `metadata` maneja automáticamente los metadatos */}
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className}>{children}<PwaUpdater /></body>
     </html>
   );
 }

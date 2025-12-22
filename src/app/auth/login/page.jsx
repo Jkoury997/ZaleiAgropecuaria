@@ -15,6 +15,7 @@ import {
   TriangleAlertIcon,
 } from "lucide-react";
 import { login, userAccess } from "@/utils/authUtils";
+import PwaUpdater from "@/components/update/PwaUpdater";
 
 export default function Page() {
   const [showPassword, setShowPassword] = useState(false);
@@ -146,6 +147,7 @@ export default function Page() {
           </form>
         </div>
       </div>
+      <PwaUpdater />
     </div>
   );
 }
