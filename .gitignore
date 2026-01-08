@@ -45,3 +45,6 @@ next-env.d.ts
 # Ignorar cualquier PDF en cualquier parte (opcional)
 /*.pdf
 *.pdf
+
+
+/data
