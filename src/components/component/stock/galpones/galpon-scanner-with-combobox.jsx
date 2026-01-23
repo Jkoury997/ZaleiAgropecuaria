@@ -10,35 +10,6 @@ import QrScannerComponent from "@/components/component/qr-scanner";
 export default function GalponScannerWithCombobox({ onScanSuccess, description }) {
   const { toast } = useToast();
 
-  useEffect(() => {
-    loadGalpones();
-  }, []);
-
-  const loadGalpones = async () => {
-    try {
-      const response = await fetch("/api/syndra/catalogo/galpones");
-      const data = await response.json();
-
-      if (response.ok && data.Estado && data.Galpones) {
-        setGalpones(data.Galpones);
-      } else {
-        toast({
-          title: "Advertencia",
-          description: "No se pudieron cargar los galpones",
-          variant: "default",
-        });
-      }
-    } catch (error) {
-      console.error("Error al cargar galpones:", error);
-      toast({
-        title: "Error",
-        description: "Error al cargar el catálogo de galpones",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoadingGalpones(false);
-    }
-  };
 
   return (
     <div className="space-y-4 p-4">
